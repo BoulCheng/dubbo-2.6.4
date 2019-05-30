@@ -41,6 +41,17 @@ import java.util.Map;
  *
  * @export
  */
+
+/**
+ *
+ * <!-- generate proxy for the remote service, then demoService can be used in the same way as the local regular interface -->
+ * <dubbo:reference id="demoService" check="false" interface="com.alibaba.dubbo.demo.DemoService"/>
+ *
+ * 一个 <dubbo:reference />  对应 一个ReferenceBean 实例对象
+ * 通过 {@link #getObject()} 获取远程服务的代理
+ *
+ * @param <T>
+ */
 public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {
 
     private static final long serialVersionUID = 213195494150089726L;
@@ -61,6 +72,11 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
         SpringExtensionFactory.addApplicationContext(applicationContext);
     }
 
+    /**
+     * 获取代理对象
+     * @return
+     * @throws Exception
+     */
     @Override
     public Object getObject() throws Exception {
         return get();

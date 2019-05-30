@@ -29,6 +29,8 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.model.ApplicationModel;
 import com.alibaba.dubbo.config.model.ConsumerModel;
 import com.alibaba.dubbo.config.support.Parameter;
+import com.alibaba.dubbo.registry.Registry;
+import com.alibaba.dubbo.registry.integration.RegistryProtocol;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Protocol;
 import com.alibaba.dubbo.rpc.ProxyFactory;
@@ -83,6 +85,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     private ConsumerConfig consumer;
     private String protocol;
     // interface proxy reference
+    //接口代理引用
     private transient volatile T ref;
     private transient volatile Invoker<?> invoker;
     private transient volatile boolean initialized;
@@ -155,6 +158,24 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         return urls;
     }
 
+    /**
+     * 如果代理{@link #ref} 未生成， 则会调用{@link #init()} 生成代理对象
+     * {@link #init()} -> {@link #createProxy(Map)} ->
+     * {@link RegistryProtocol#doRefer(Cluster, Registry, Class, URL)}
+     *
+     * doRefer:312, RegistryProtocol (com.alibaba.dubbo.registry.integration)
+     * refer:287, RegistryProtocol (com.alibaba.dubbo.registry.integration)
+     * refer:65, ProtocolListenerWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:106, ProtocolFilterWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:69, QosProtocolWrapper (com.alibaba.dubbo.qos.protocol)
+     * refer:-1, Protocol$Adaptive (com.alibaba.dubbo.rpc)
+     * createProxy:399, ReferenceConfig (com.alibaba.dubbo.config)
+     * init:333, ReferenceConfig (com.alibaba.dubbo.config)
+     * get:163, ReferenceConfig (com.alibaba.dubbo.config)
+     * getObject:66, ReferenceBean (com.alibaba.dubbo.config.spring)
+     *
+     * @return
+     */
     public synchronized T get() {
         if (destroyed) {
             throw new IllegalStateException("Already destroyed!");

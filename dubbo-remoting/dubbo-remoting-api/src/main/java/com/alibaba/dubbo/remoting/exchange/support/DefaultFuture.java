@@ -65,6 +65,13 @@ public class DefaultFuture implements ResponseFuture {
     private volatile Response response;
     private volatile ResponseCallback callback;
 
+    /**
+     * {@link Request#mId} 和 DefaultFuture 的映射关系保存在 {@link #FUTURES}
+     * 服务调用方 接受 服务提供者的返回，返回中有调用时的{@link Request#mId} 然后找到对应的 {@lin DefaultFuture} 更新 {@link #response}
+     * @param channel
+     * @param request
+     * @param timeout
+     */
     public DefaultFuture(Channel channel, Request request, int timeout) {
         this.channel = channel;
         this.request = request;

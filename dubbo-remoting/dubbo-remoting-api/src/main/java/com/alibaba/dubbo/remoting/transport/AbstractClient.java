@@ -66,6 +66,50 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
     private long lastConnectedTime = System.currentTimeMillis();
 
 
+    /**
+     * netty 建立连接
+     * {@link RegistryProtocol#doRefer(Cluster, Registry, Class, URL)}
+     *
+     * connect:269, AbstractClient (com.alibaba.dubbo.remoting.transport)
+     * <init>:89, AbstractClient (com.alibaba.dubbo.remoting.transport)
+     * <init>:59, NettyClient (com.alibaba.dubbo.remoting.transport.netty)
+     * connect:37, NettyTransporter (com.alibaba.dubbo.remoting.transport.netty)
+     * connect:-1, Transporter$Adaptive (com.alibaba.dubbo.remoting)
+     * connect:75, Transporters (com.alibaba.dubbo.remoting)
+     * connect:39, HeaderExchanger (com.alibaba.dubbo.remoting.exchange.support.header)
+     * connect:109, Exchangers (com.alibaba.dubbo.remoting.exchange)
+     * initClient:417, DubboProtocol (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * getSharedClient:384, DubboProtocol (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * getClients:355, DubboProtocol (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * refer:337, DubboProtocol (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * refer:67, ProtocolListenerWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:71, QosProtocolWrapper (com.alibaba.dubbo.qos.protocol)
+     * refer:108, ProtocolFilterWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:-1, Protocol$Adaptive (com.alibaba.dubbo.rpc)
+     * toInvokers:387, RegistryDirectory (com.alibaba.dubbo.registry.integration)
+     * refreshInvoker:253, RegistryDirectory (com.alibaba.dubbo.registry.integration)
+     * notify:223, RegistryDirectory (com.alibaba.dubbo.registry.integration)
+     * notify:414, AbstractRegistry (com.alibaba.dubbo.registry.support)
+     * doNotify:280, FailbackRegistry (com.alibaba.dubbo.registry.support)
+     * notify:266, FailbackRegistry (com.alibaba.dubbo.registry.support)
+     * doSubscribe:190, ZookeeperRegistry (com.alibaba.dubbo.registry.zookeeper)
+     * subscribe:196, FailbackRegistry (com.alibaba.dubbo.registry.support)
+     * subscribe:159, RegistryDirectory (com.alibaba.dubbo.registry.integration)
+     * doRefer:306, RegistryProtocol (com.alibaba.dubbo.registry.integration)
+     * refer:287, RegistryProtocol (com.alibaba.dubbo.registry.integration)
+     * refer:65, ProtocolListenerWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:69, QosProtocolWrapper (com.alibaba.dubbo.qos.protocol)
+     * refer:106, ProtocolFilterWrapper (com.alibaba.dubbo.rpc.protocol)
+     * refer:-1, Protocol$Adaptive (com.alibaba.dubbo.rpc)
+     * createProxy:394, ReferenceConfig (com.alibaba.dubbo.config)
+     * init:333, ReferenceConfig (com.alibaba.dubbo.config)
+     * get:163, ReferenceConfig (com.alibaba.dubbo.config)
+     * getObject:66, ReferenceBean (com.alibaba.dubbo.config.spring)
+     *
+     * @param url
+     * @param handler
+     * @throws RemotingException
+     */
     public AbstractClient(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
 

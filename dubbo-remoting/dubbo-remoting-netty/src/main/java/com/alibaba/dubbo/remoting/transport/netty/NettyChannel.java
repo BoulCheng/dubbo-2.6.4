@@ -90,6 +90,35 @@ final class NettyChannel extends AbstractChannel {
         return channel.isConnected();
     }
 
+    /**
+     * 调用接口最终都会通过netty发送 封装好的调用信息 (包括调用的接口的全限定名、调用的方法名、方法参数等)
+     *
+     * send:95, NettyChannel (com.alibaba.dubbo.remoting.transport.netty)
+     * send:265, AbstractClient (com.alibaba.dubbo.remoting.transport)
+     * send:53, AbstractPeer (com.alibaba.dubbo.remoting.transport)
+     * request:116, HeaderExchangeChannel (com.alibaba.dubbo.remoting.exchange.support.header)
+     * request:90, HeaderExchangeClient (com.alibaba.dubbo.remoting.exchange.support.header)
+     * request:83, ReferenceCountExchangeClient (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * doInvoke:95, DubboInvoker (com.alibaba.dubbo.rpc.protocol.dubbo)
+     * invoke:154, AbstractInvoker (com.alibaba.dubbo.rpc.protocol)
+     * invoke:75, MonitorFilter (com.alibaba.dubbo.monitor.support)
+     * invoke:72, ProtocolFilterWrapper$1 (com.alibaba.dubbo.rpc.protocol)
+     * invoke:54, FutureFilter (com.alibaba.dubbo.rpc.protocol.dubbo.filter)
+     * invoke:72, ProtocolFilterWrapper$1 (com.alibaba.dubbo.rpc.protocol)
+     * invoke:49, ConsumerContextFilter (com.alibaba.dubbo.rpc.filter)
+     * invoke:72, ProtocolFilterWrapper$1 (com.alibaba.dubbo.rpc.protocol)
+     * invoke:77, ListenerInvokerWrapper (com.alibaba.dubbo.rpc.listener)
+     * invoke:56, InvokerWrapper (com.alibaba.dubbo.rpc.protocol)
+     * doInvoke:78, FailoverClusterInvoker (com.alibaba.dubbo.rpc.cluster.support)
+     * invoke:244, AbstractClusterInvoker (com.alibaba.dubbo.rpc.cluster.support)
+     * invoke:75, MockClusterInvoker (com.alibaba.dubbo.rpc.cluster.support.wrapper)
+     * invoke:52, InvokerInvocationHandler (com.alibaba.dubbo.rpc.proxy)
+     * {MethodName}:-1, proxy1 (com.alibaba.dubbo.common.bytecode)
+     *
+     * @param message
+     * @param sent
+     * @throws RemotingException
+     */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
         super.send(message, sent);
