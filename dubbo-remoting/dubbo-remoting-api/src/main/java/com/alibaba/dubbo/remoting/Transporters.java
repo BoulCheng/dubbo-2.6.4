@@ -23,7 +23,7 @@ import com.alibaba.dubbo.remoting.transport.ChannelHandlerAdapter;
 import com.alibaba.dubbo.remoting.transport.ChannelHandlerDispatcher;
 
 /**
- * Transporter facade. (API, Static, ThreadSafe)
+ * Transporter facade. (API, Static, ThreadSafe)  {@link NettyTransporter}
  */
 public class Transporters {
 
@@ -40,6 +40,13 @@ public class Transporters {
         return bind(URL.valueOf(url), handler);
     }
 
+    /**
+     *
+     * @param url
+     * @param handlers
+     * @return {@link com.alibaba.dubbo.remoting.transport.netty.NettyServer}
+     * @throws RemotingException
+     */
     public static Server bind(URL url, ChannelHandler... handlers) throws RemotingException {
         if (url == null) {
             throw new IllegalArgumentException("url == null");
@@ -53,6 +60,12 @@ public class Transporters {
         } else {
             handler = new ChannelHandlerDispatcher(handlers);
         }
+        /**
+         * netty=com.alibaba.dubbo.remoting.transport.netty.NettyTransporter
+         * netty4=com.alibaba.dubbo.remoting.transport.netty4.NettyTransporter
+         *
+         * {@link com.alibaba.dubbo.remoting.transport.netty.NettyTransporter#bind}
+         */
         return getTransporter().bind(url, handler);
     }
 

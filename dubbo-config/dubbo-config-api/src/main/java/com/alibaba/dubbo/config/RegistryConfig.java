@@ -26,6 +26,12 @@ import java.util.Map;
  *
  * @export
  */
+
+/**
+ * 注册中心配置 <dubbo:registry>
+ *
+ * 如果有多个不同的注册中心，可以声明多个 <dubbo:registry> 标签，并在 <dubbo:service> 或 <dubbo:reference> 的 registry 属性指定使用的注册中心
+ */
 public class RegistryConfig extends AbstractConfig {
 
     public static final String NO_AVAILABLE = "N/A";

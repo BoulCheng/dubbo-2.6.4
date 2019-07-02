@@ -30,12 +30,16 @@ import com.alibaba.dubbo.config.invoker.DelegateProviderMetaDataInvoker;
 import com.alibaba.dubbo.config.model.ApplicationModel;
 import com.alibaba.dubbo.config.model.ProviderModel;
 import com.alibaba.dubbo.config.support.Parameter;
+import com.alibaba.dubbo.registry.integration.RegistryProtocol;
 import com.alibaba.dubbo.rpc.Exporter;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Protocol;
 import com.alibaba.dubbo.rpc.ProxyFactory;
 import com.alibaba.dubbo.rpc.ServiceClassHolder;
 import com.alibaba.dubbo.rpc.cluster.ConfiguratorFactory;
+import com.alibaba.dubbo.rpc.protocol.injvm.InjvmProtocol;
+import com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker;
+import com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory;
 import com.alibaba.dubbo.rpc.service.GenericService;
 import com.alibaba.dubbo.rpc.support.ProtocolUtils;
 
@@ -67,6 +71,12 @@ import static com.alibaba.dubbo.common.utils.NetUtils.isInvalidPort;
  *
  * @export
  */
+
+/**
+ * 服务提供者暴露服务配置 对应 <dubbo:service />
+ * @param <T>
+ *
+ */
 public class ServiceConfig<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
@@ -82,9 +92,17 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
     // interface type
     private String interfaceName;
+    /**
+     * 接口类对象
+     */
     private Class<?> interfaceClass;
+    /**
+     * 接口实现类实例对象
+     * {@link #checkRef()}
+     */
     // reference to interface impl
     private T ref;
+    // 默认为接口名
     // service name
     private String path;
     // method configuration
@@ -315,6 +333,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             path = interfaceName;
         }
         doExportUrls();
+        // ProviderModel 表示服务提供者模型，此对象中存储了与服务提供者相关的信息。
+        // 比如服务的配置信息，服务实例等。每个被导出的服务对应一个 ProviderModel。
+        // ApplicationModel 持有所有的 ProviderModel。
         ProviderModel providerModel = new ProviderModel(getUniqueServiceName(), this, ref);
         ApplicationModel.initProviderModel(getUniqueServiceName(), providerModel);
     }
@@ -351,6 +372,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         unexported = true;
     }
 
+    /**
+     * 使用不同的协议导出服务，注册服务到多个注册中心。
+     * 在 doExportUrls 方法中对多协议，多注册中心进行了支持
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
         List<URL> registryURLs = loadRegistries(true);
@@ -469,6 +494,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
         String host = this.findConfigedHosts(protocolConfig, registryURLs, map);
         Integer port = this.findConfigedPorts(protocolConfig, name, map);
+        /**
+         * name 来源<dubbo:protocol name="dubbo" port=""/> 协议来源
+         *
+         * 创建 URL
+         */
         URL url = new URL(name, host, port, (contextPath == null || contextPath.length() == 0 ? "" : contextPath + "/") + path, map);
 
         if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
@@ -479,13 +509,16 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
         String scope = url.getParameter(Constants.SCOPE_KEY);
         // don't export when none is configured
+        // scope 不为 none 执行导出
         if (!Constants.SCOPE_NONE.toString().equalsIgnoreCase(scope)) {
 
             // export to local if the config is not remote (export to remote only when config is remote)
+            // scope 不为 remote 执行导出到本地
             if (!Constants.SCOPE_REMOTE.toString().equalsIgnoreCase(scope)) {
                 exportLocal(url);
             }
             // export to remote if the config is not local (export to local only when config is local)
+            // scope 不为 local 执行导出到远程
             if (!Constants.SCOPE_LOCAL.toString().equalsIgnoreCase(scope)) {
                 if (logger.isInfoEnabled()) {
                     logger.info("Export dubbo service " + interfaceClass.getName() + " to url " + url);
@@ -504,12 +537,23 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                         // For providers, this is used to enable custom proxy to generate invoker
                         String proxy = url.getParameter(Constants.PROXY_KEY);
                         if (StringUtils.isNotEmpty(proxy)) {
+                            //使用自定的代理工厂ProxyFactory实现 生成invoker
                             registryURL = registryURL.addParameter(Constants.PROXY_KEY, proxy);
                         }
 
+                        /**
+                         * {@link JavassistProxyFactory#getInvoker(Object, Class, URL)}
+                         * generate registryURL
+                         * 设置 export 属性 保存了 providerUrl {@link RegistryProtocol#getProviderUrl(Invoker)}
+                         * {@link AbstractProxyInvoker#getUrl()}
+                         */
                         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
+                        /**
+                         * wrapperInvoker.getUrl().getProtocol()  == registry
+                         * {@link RegistryProtocol#export(Invoker)}
+                         */
                         Exporter<?> exporter = protocol.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
@@ -525,6 +569,11 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         this.urls.add(url);
     }
 
+    /**
+     * {@link InjvmProtocol#export(Invoker)}
+     *
+     * @param url
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void exportLocal(URL url) {
         if (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
@@ -607,6 +656,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             }
         }
 
+        // bind.ip
         map.put(Constants.BIND_IP_KEY, hostToBind);
 
         // registry ip is not used for bind ip by default
@@ -618,6 +668,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             hostToRegistry = hostToBind;
         }
 
+        // anyhost
         map.put(Constants.ANYHOST_KEY, String.valueOf(anyhost));
 
         return hostToRegistry;
@@ -659,6 +710,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             }
         }
 
+        // bind.port
         // save bind port, used as url's key later
         map.put(Constants.BIND_PORT_KEY, String.valueOf(portToBind));
 

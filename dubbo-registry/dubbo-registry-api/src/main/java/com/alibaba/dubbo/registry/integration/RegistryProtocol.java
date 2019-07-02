@@ -41,6 +41,7 @@ import com.alibaba.dubbo.rpc.cluster.Directory;
 import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
 import com.alibaba.dubbo.rpc.cluster.support.wrapper.MockClusterWrapper;
 import com.alibaba.dubbo.rpc.protocol.InvokerWrapper;
+import com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,6 +104,18 @@ public class RegistryProtocol implements Protocol {
         this.cluster = cluster;
     }
 
+    /**
+     * setProtocol:104, RegistryProtocol (com.alibaba.dubbo.registry.integration)
+     * invoke0:-1, NativeMethodAccessorImpl (sun.reflect)
+     * invoke:62, NativeMethodAccessorImpl (sun.reflect)
+     * invoke:43, DelegatingMethodAccessorImpl (sun.reflect)
+     * invoke:498, Method (java.lang.reflect)
+     * injectExtension:523, ExtensionLoader (com.alibaba.dubbo.common.extension)
+     * createExtension:497, ExtensionLoader (com.alibaba.dubbo.common.extension)
+     * getExtension:309, ExtensionLoader (com.alibaba.dubbo.common.extension)
+     *
+     * @param protocol
+     */
     public void setProtocol(Protocol protocol) {
         this.protocol = protocol;
     }
@@ -126,14 +139,30 @@ public class RegistryProtocol implements Protocol {
 
     public void register(URL registryUrl, URL registedProviderUrl) {
         Registry registry = registryFactory.getRegistry(registryUrl);
+        // FailbackRegistry
         registry.register(registedProviderUrl);
     }
 
+    /**
+     *
+     * @param originInvoker
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
+    /**
+     * {@link DelegateProviderMetaDataInvoker}
+     * @param originInvoker
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker);
 
+        // protocol属性值更新为url registry属性值(zookeeper) //zookeeper://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=demo-provider&check=false&dubbo=2.0.2&export=dubbo%3A%2F%2F192.168.1.188%3A20880%2Fcom.alibaba.dubbo.demo.DemoService%3Fanyhost%3Dtrue%26application%3Ddemo-provider%26bind.ip%3D192.168.1.188%26bind.port%3D20880%26dubbo%3D2.0.2%26generic%3Dfalse%26interface%3Dcom.alibaba.dubbo.demo.DemoService%26methods%3DsayHello%26pid%3D96258%26qos.port%3D22222%26side%3Dprovider%26timestamp%3D1561022693643&pid=96258&qos.enable=false&qos.port=22222&timestamp=1561022693617
         URL registryUrl = getRegistryUrl(originInvoker);
 
         //registry provider
@@ -155,11 +184,18 @@ public class RegistryProtocol implements Protocol {
         final URL overrideSubscribeUrl = getSubscribedOverrideUrl(registeredProviderUrl);
         final OverrideListener overrideSubscribeListener = new OverrideListener(overrideSubscribeUrl, originInvoker);
         overrideListeners.put(overrideSubscribeUrl, overrideSubscribeListener);
+        // FailbackRegistry
         registry.subscribe(overrideSubscribeUrl, overrideSubscribeListener);
         //Ensure that a new exporter instance is returned every time export
         return new DestroyableExporter<T>(exporter, originInvoker, overrideSubscribeUrl, registeredProviderUrl);
     }
 
+    /**
+     * {@link DelegateProviderMetaDataInvoker}
+     * @param originInvoker
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     private <T> ExporterChangeableWrapper<T> doLocalExport(final Invoker<T> originInvoker) {
         String key = getCacheKey(originInvoker);
@@ -168,7 +204,14 @@ public class RegistryProtocol implements Protocol {
             synchronized (bounds) {
                 exporter = (ExporterChangeableWrapper<T>) bounds.get(key);
                 if (exporter == null) {
+                    // originInvoker.getUrl().getProtocol() == registry
+                    // invokerDelegete.getUrl().getProtocol() == dubbo
+                    // originInvoker ->  {@link DelegateProviderMetaDataInvoker}
                     final Invoker<?> invokerDelegete = new InvokerDelegete<T>(originInvoker, getProviderUrl(originInvoker));
+
+                    /**
+                     * {@link DubboProtocol#export}
+                     */
                     exporter = new ExporterChangeableWrapper<T>((Exporter<T>) protocol.export(invokerDelegete), originInvoker);
                     bounds.put(key, exporter);
                 }
@@ -244,6 +287,12 @@ public class RegistryProtocol implements Protocol {
     /**
      * Get the address of the providerUrl through the url of the invoker
      *
+     * @param origininvoker
+     * @return
+     */
+    /**
+     * {@link AbstractProxyInvoker#getUrl()}
+     * {@link #doLocalExport(Invoker)}
      * @param origininvoker
      * @return
      */

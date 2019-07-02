@@ -34,6 +34,8 @@ import com.alibaba.dubbo.remoting.exchange.ExchangeHandler;
 import com.alibaba.dubbo.remoting.exchange.ExchangeServer;
 import com.alibaba.dubbo.remoting.exchange.Exchangers;
 import com.alibaba.dubbo.remoting.exchange.support.ExchangeHandlerAdapter;
+import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchangeServer;
+import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchanger;
 import com.alibaba.dubbo.rpc.Exporter;
 import com.alibaba.dubbo.rpc.Invocation;
 import com.alibaba.dubbo.rpc.Invoker;
@@ -62,6 +64,7 @@ public class DubboProtocol extends AbstractProtocol {
     public static final int DEFAULT_PORT = 20880;
     private static final String IS_CALLBACK_SERVICE_INVOKE = "_isCallBackServiceInvoke";
     private static DubboProtocol INSTANCE;
+    // key host:port
     private final Map<String, ExchangeServer> serverMap = new ConcurrentHashMap<String, ExchangeServer>(); // <host:port,Exchanger>
     private final Map<String, ReferenceCountExchangeClient> referenceClientMap = new ConcurrentHashMap<String, ReferenceCountExchangeClient>(); // <host:port,Exchanger>
     private final ConcurrentMap<String, LazyConnectExchangeClient> ghostClientMap = new ConcurrentHashMap<String, LazyConnectExchangeClient>();
@@ -224,13 +227,26 @@ public class DubboProtocol extends AbstractProtocol {
         return DEFAULT_PORT;
     }
 
+    /**
+     * {@link RegistryProtocal.InvokerDelegete}
+     * @param invoker Service invoker
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // InvokerDelegete#getUrl()
+        // providerUrl
         URL url = invoker.getUrl();
 
+        // serviceKey  e.g. dev/com.fota.margin.service.MarginRollBackService:1.0.0:7894
         // export service.
         String key = serviceKey(url);
         DubboExporter<T> exporter = new DubboExporter<T>(invoker, key, exporterMap);
+        /**
+         * {@link exporterMap} serviceKey -> DubboExporter
+         */
         exporterMap.put(key, exporter);
 
         //export an stub service for dispatching event
@@ -248,6 +264,10 @@ public class DubboProtocol extends AbstractProtocol {
             }
         }
 
+        /**
+         * {@link #serverMap} ip -> HeaderExchangeServer(会启动netty服务端(并设置心跳检测)) 服务提供者方一个端口会启动一个netty服务端
+         *
+         */
         openServer(url);
         optimizeSerialization(url);
         return exporter;
@@ -269,6 +289,12 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    /**
+     * {@link HeaderExchanger#bind(URL, ExchangeHandler)}
+     *
+     * @param url
+     * @return {@link HeaderExchangeServer}
+     */
     private ExchangeServer createServer(URL url) {
         // send readonly event when server closes, it's enabled by default
         url = url.addParameterIfAbsent(Constants.CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString());

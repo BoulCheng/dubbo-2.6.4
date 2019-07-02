@@ -39,6 +39,18 @@ public class HeaderExchanger implements Exchanger {
         return new HeaderExchangeClient(Transporters.connect(url, new DecodeHandler(new HeaderExchangeHandler(handler))), true);
     }
 
+    /**
+     * 启动netty服务端  并 设置心跳检测
+     *
+     * {@link com.alibaba.dubbo.remoting.transport.netty.NettyTransporter#bind}
+     * @param url
+     * @param handler
+     * @return
+     * @throws RemotingException
+     *
+     *
+     * {@link com.alibaba.dubbo.remoting.transport.netty.NettyServer}
+     */
     @Override
     public ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException {
         return new HeaderExchangeServer(Transporters.bind(url, new DecodeHandler(new HeaderExchangeHandler(handler))));

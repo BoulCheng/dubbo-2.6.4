@@ -68,6 +68,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see java.net.URL
  * @see java.net.URI
  */
+
+/**
+ * URL 是 Dubbo 配置的载体，通过 URL 可让 Dubbo 的各种配置在各个模块之间传递
+ */
 public final class URL implements Serializable {
 
     private static final long serialVersionUID = -1985165475234910535L;
@@ -1154,6 +1158,15 @@ public final class URL implements Serializable {
         return buildString(appendUser, appendParameter, false, false, parameters);
     }
 
+    /**
+     * url
+     * @param appendUser
+     * @param appendParameter
+     * @param useIP
+     * @param useService
+     * @param parameters
+     * @return
+     */
     private String buildString(boolean appendUser, boolean appendParameter, boolean useIP, boolean useService, String... parameters) {
         StringBuilder buf = new StringBuilder();
         if (protocol != null && protocol.length() > 0) {

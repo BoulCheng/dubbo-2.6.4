@@ -90,6 +90,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     protected ModuleConfig module;
 
     // registry centers
+    // 配置的注册中心
     protected List<RegistryConfig> registries;
 
     // connection events
@@ -158,6 +159,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 收集 注册中心配置 <dubbo:registry>
+     * @param provider
+     * @return
+     */
     protected List<URL> loadRegistries(boolean provider) {
         checkRegistry();
         List<URL> registryList = new ArrayList<URL>();
@@ -175,6 +181,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                     Map<String, String> map = new HashMap<String, String>();
                     appendParameters(map, application);
                     appendParameters(map, config);
+                    // path
                     map.put("path", RegistryService.class.getName());
                     map.put("dubbo", Version.getProtocolVersion());
                     map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
@@ -191,6 +198,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                     List<URL> urls = UrlUtils.parseURLs(address, map);
                     for (URL url : urls) {
                         url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
+                        // protocol 替换为 registry
                         url = url.setProtocol(Constants.REGISTRY_PROTOCOL);
                         if ((provider && url.getParameter(Constants.REGISTER_KEY, true))
                                 || (!provider && url.getParameter(Constants.SUBSCRIBE_KEY, true))) {

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
@@ -45,6 +46,19 @@ import java.util.Map;
  * ServiceFactoryBean
  *
  * @export
+ */
+
+/**
+ * 代表服务提供者
+ *
+ * 当<dubbo:service /> 对应的接口实现类初始化后会触发Spring容器发布容器刷新事件 {@link #onApplicationEvent(ContextRefreshedEvent)}
+ *
+ * {@link DefaultListableBeanFactory#preInstantiateSingletons()}
+ * {@link org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration.DifferentManagementContextConfiguration#afterSingletonsInstantiated()}
+ *
+ * {@link ReferenceBean}
+ *
+ * @param <T>
  */
 public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, DisposableBean, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent>, BeanNameAware {
 

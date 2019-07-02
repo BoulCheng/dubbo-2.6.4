@@ -56,6 +56,19 @@ import java.util.regex.Pattern;
  * @see com.alibaba.dubbo.common.extension.Adaptive
  * @see com.alibaba.dubbo.common.extension.Activate
  */
+
+/**
+ * Dubbo SPI
+ * Dubbo SPI 所需的配置文件需放置在 META-INF/dubbo 路径下
+ *
+ * 通过ExtensionLoader 加载指定的实现类
+ * @param <T>
+ */
+
+/**
+ * SPI 全称为 Service Provider Interface，是一种服务发现机制。SPI 的本质是将接口实现类的全限定名配置在文件中，并由服务加载器读取配置文件，加载实现类.
+ * @param <T>
+ */
 public class ExtensionLoader<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(ExtensionLoader.class);
@@ -102,6 +115,13 @@ public class ExtensionLoader<T> {
         return type.isAnnotationPresent(SPI.class);
     }
 
+    /**
+     * 获取指定接口的 ExtensionLoader 实例
+     * {@link #getExtension(String)}
+     * @param type
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
         if (type == null)
@@ -288,6 +308,11 @@ public class ExtensionLoader<T> {
     /**
      * Find the extension with the given name. If the specified name is not found, then {@link IllegalStateException}
      * will be thrown.
+     */
+    /**
+     * 获取接口的指定实现类
+     * @param name
+     * @return
      */
     @SuppressWarnings("unchecked")
     public T getExtension(String name) {

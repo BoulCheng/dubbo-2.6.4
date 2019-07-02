@@ -22,6 +22,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcResult;
+import com.alibaba.dubbo.rpc.proxy.javassist.JavassistProxyFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -56,6 +57,12 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
         return type;
     }
 
+    /**
+     * 获得registryURL
+     * export 属性 保存了 providerUrl
+     * {@link JavassistProxyFactory#getInvoker(Object, Class, URL)}
+     * @return
+     */
     @Override
     public URL getUrl() {
         return url;

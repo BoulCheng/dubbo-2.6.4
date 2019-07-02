@@ -358,6 +358,7 @@ public class Constants {
 
     public static final String REGISTRY_SEPARATOR = "|";
 
+    // TODO: 2019/5/30  
     public static final Pattern REGISTRY_SPLIT_PATTERN = Pattern
             .compile("\\s*[|;]+\\s*");
 

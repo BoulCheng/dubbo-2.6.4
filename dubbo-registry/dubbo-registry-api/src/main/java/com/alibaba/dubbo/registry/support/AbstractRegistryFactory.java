@@ -80,6 +80,11 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
         }
     }
 
+    /**
+     *
+     * @param url Registry address, is not allowed to be empty
+     * @return {@link ZookeeperRegistry}
+     */
     @Override
     public Registry getRegistry(URL url) {
         url = url.setPath(RegistryService.class.getName())
@@ -93,7 +98,10 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
             if (registry != null) {
                 return registry;
             }
-            registry = createRegistry(url);
+            /**
+             * @see ZookeeperRegistryFactory
+             */
+            registry = createRegistry(url); //ZookeeperRegistryFactory //zookeeper://127.0.0.1:2181/com.alibaba.dubbo.registry.RegistryService?application=demo-provider&check=false&dubbo=2.0.2&interface=com.alibaba.dubbo.registry.RegistryService&pid=96312&qos.enable=false&qos.port=22222&timestamp=1561023060209
             if (registry == null) {
                 throw new IllegalStateException("Can not create registry " + url);
             }

@@ -69,6 +69,7 @@ public class HeaderExchangeServer implements ExchangeServer {
         if (heartbeatTimeout < heartbeat * 2) {
             throw new IllegalStateException("heartbeatTimeout < heartbeatInterval * 2");
         }
+        // 心跳检测
         startHeartbeatTimer();
     }
 

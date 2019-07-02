@@ -26,6 +26,10 @@ import java.util.List;
  *
  * @export
  */
+
+/**
+ * MethodConfig 中存储了 <dubbo:method> 标签的配置信息
+ */
 public class MethodConfig extends AbstractMethodConfig {
 
     private static final long serialVersionUID = 884908855422675941L;

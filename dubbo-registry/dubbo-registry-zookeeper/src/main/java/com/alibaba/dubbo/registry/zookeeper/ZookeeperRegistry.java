@@ -66,7 +66,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
             group = Constants.PATH_SEPARATOR + group;
         }
         this.root = group;
-        zkClient = zookeeperTransporter.connect(url);
+        zkClient = zookeeperTransporter.connect(url); //CuratorZookeeperTransporter
         zkClient.addStateListener(new StateListener() {
             @Override
             public void stateChanged(int state) {

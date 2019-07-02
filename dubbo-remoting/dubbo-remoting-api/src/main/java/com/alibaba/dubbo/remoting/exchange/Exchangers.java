@@ -24,6 +24,7 @@ import com.alibaba.dubbo.remoting.ChannelHandler;
 import com.alibaba.dubbo.remoting.RemotingException;
 import com.alibaba.dubbo.remoting.exchange.support.ExchangeHandlerDispatcher;
 import com.alibaba.dubbo.remoting.exchange.support.Replier;
+import com.alibaba.dubbo.remoting.exchange.support.header.HeaderExchanger;
 import com.alibaba.dubbo.remoting.transport.ChannelHandlerAdapter;
 
 /**
@@ -114,6 +115,11 @@ public class Exchangers {
         return getExchanger(type);
     }
 
+    /**
+     *
+     * @param type
+     * @return {@link HeaderExchanger}
+     */
     public static Exchanger getExchanger(String type) {
         return ExtensionLoader.getExtensionLoader(Exchanger.class).getExtension(type);
     }

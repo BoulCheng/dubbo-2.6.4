@@ -47,6 +47,10 @@ import java.util.concurrent.Executors;
 /**
  * NettyServer
  */
+
+/**
+ * {@link NettyClient}
+ */
 public class NettyServer extends AbstractServer implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
@@ -57,6 +61,12 @@ public class NettyServer extends AbstractServer implements Server {
 
     private org.jboss.netty.channel.Channel channel;
 
+    /**
+     * 启动netty服务端
+     * @param url
+     * @param handler
+     * @throws RemotingException
+     */
     public NettyServer(URL url, ChannelHandler handler) throws RemotingException {
         super(url, ChannelHandlers.wrap(handler, ExecutorUtil.setThreadName(url, SERVER_THREAD_POOL_NAME)));
     }
