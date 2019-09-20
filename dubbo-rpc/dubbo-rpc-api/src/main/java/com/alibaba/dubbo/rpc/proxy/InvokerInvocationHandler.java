@@ -33,6 +33,14 @@ public class InvokerInvocationHandler implements InvocationHandler {
         this.invoker = handler;
     }
 
+    /**
+     * 方法调用
+     * @param proxy
+     * @param method
+     * @param args
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();

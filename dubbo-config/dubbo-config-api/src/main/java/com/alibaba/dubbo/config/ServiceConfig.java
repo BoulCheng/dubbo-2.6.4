@@ -378,8 +378,8 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
-        List<URL> registryURLs = loadRegistries(true);
-        for (ProtocolConfig protocolConfig : protocols) {
+        List<URL> registryURLs = loadRegistries(true); // <dubbo:registry/>配置的注册中心
+        for (ProtocolConfig protocolConfig : protocols) { // <dubbo:protocol/> 配置的协议
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }

@@ -39,6 +39,7 @@ import com.alibaba.dubbo.rpc.cluster.Cluster;
 import com.alibaba.dubbo.rpc.cluster.Configurator;
 import com.alibaba.dubbo.rpc.cluster.Directory;
 import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
+import com.alibaba.dubbo.rpc.cluster.support.wrapper.MockClusterInvoker;
 import com.alibaba.dubbo.rpc.cluster.support.wrapper.MockClusterWrapper;
 import com.alibaba.dubbo.rpc.protocol.InvokerWrapper;
 import com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker;
@@ -343,6 +344,15 @@ public class RegistryProtocol implements Protocol {
         return ExtensionLoader.getExtensionLoader(Cluster.class).getExtension("mergeable");
     }
 
+    /**
+     *
+     * @param cluster
+     * @param registry
+     * @param type
+     * @param url
+     * @param <T>
+     * @return {@link MockClusterInvoker}
+     */
     private <T> Invoker<T> doRefer(Cluster cluster, Registry registry, Class<T> type, URL url) {
         RegistryDirectory<T> directory = new RegistryDirectory<T>(type, url);
         directory.setRegistry(registry);
@@ -351,12 +361,13 @@ public class RegistryProtocol implements Protocol {
         Map<String, String> parameters = new HashMap<String, String>(directory.getUrl().getParameters());
         URL subscribeUrl = new URL(Constants.CONSUMER_PROTOCOL, parameters.remove(Constants.REGISTER_IP_KEY), 0, type.getName(), parameters);
         if (!Constants.ANY_VALUE.equals(url.getServiceInterface())
-                && url.getParameter(Constants.REGISTER_KEY, true)) {
+                && url.getParameter(Constants.REGISTER_KEY, true)) { // FailbackRegistry#register
             registry.register(subscribeUrl.addParameters(Constants.CATEGORY_KEY, Constants.CONSUMERS_CATEGORY,
-                    Constants.CHECK_KEY, String.valueOf(false)));
+                    Constants.CHECK_KEY, String.valueOf(false))); //ZookeeperRegistry >> FailbackRegistry >> AbstractRegistry // 注册服务消费者，在 consumers 目录下新增节点
         }
         /**
          * 会触发netty建立连接
+         * {@link DubboProtocol#refer}
          *
          *
          * connect:269, AbstractClient (com.alibaba.dubbo.remoting.transport)

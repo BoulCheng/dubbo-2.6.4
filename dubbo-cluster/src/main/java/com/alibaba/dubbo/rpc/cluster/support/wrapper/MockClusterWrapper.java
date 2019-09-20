@@ -20,6 +20,7 @@ import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.cluster.Cluster;
 import com.alibaba.dubbo.rpc.cluster.Directory;
+import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
 
 /**
  * mock impl
@@ -33,6 +34,10 @@ public class MockClusterWrapper implements Cluster {
         this.cluster = cluster;
     }
 
+
+    /**
+     * {@link FailoverCluster#join(Directory)}
+     */
     @Override
     public <T> Invoker<T> join(Directory<T> directory) throws RpcException {
         return new MockClusterInvoker<T>(directory,

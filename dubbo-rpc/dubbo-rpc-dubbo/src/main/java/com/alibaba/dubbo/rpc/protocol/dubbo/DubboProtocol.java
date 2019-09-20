@@ -356,10 +356,19 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    /**
+     * {@link RegistryProtocol#doRefer}
+     * @param serviceType
+     * @param url  URL address for the remote service
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     @Override
     public <T> Invoker<T> refer(Class<T> serviceType, URL url) throws RpcException {
         optimizeSerialization(url);
         // create rpc invoker.
+        // 建立提供者的netty连接 并创建 DubboInvoker
         DubboInvoker<T> invoker = new DubboInvoker<T>(serviceType, url, getClients(url), invokers);
         invokers.add(invoker);
         return invoker;

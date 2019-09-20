@@ -180,6 +180,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
         if (destroyed) {
             throw new IllegalStateException("Already destroyed!");
         }
+        // 调试到 get 方法的if (ref == null)时，你会发现 ref 不为空，导致你无法进入到 init 方法中继续调试。
+        // 导致这个现象的原因是 Dubbo 框架本身有一些小问题。该问题已经在 pull request #2754 修复了此问题，并跟随 2.6.5 版本发布了
+        // 2.6.4 及以下版本，可通过修改 IDEA 配置规避这个问题。首先 IDEA 配置弹窗中搜索 toString，然后取消Enable 'toString' object view勾选
         if (ref == null) {
             init();
         }
@@ -411,7 +414,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 }
             }
 
-            if (urls.size() == 1) {
+            if (urls.size() == 1) {// RegistryProtocol
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
             } else {
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
@@ -446,6 +449,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
             logger.info("Refer dubbo service " + interfaceClass.getName() + " from url " + invoker.getUrl());
         }
         // create service proxy
+        // 通过代理工厂类 (ProxyFactory) 为服务接口生成代理类，并让代理类去调用 Invoker 逻辑。避免了 Dubbo 框架代码对业务代码的侵入，同时也让框架更容易使用。
         return (T) proxyFactory.getProxy(invoker);
     }
 

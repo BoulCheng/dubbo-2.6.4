@@ -269,8 +269,8 @@ public class ZookeeperRegistry extends FailbackRegistry {
         return toServicePath(url) + Constants.PATH_SEPARATOR + url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);
     }
 
-    private String toUrlPath(URL url) {
-        return toCategoryPath(url) + Constants.PATH_SEPARATOR + URL.encode(url.toFullString());
+    private String toUrlPath(URL url) { // /dubbo/com.alibaba.dubbo.demo.DemoService/consumers/consumer%3A%2F%2F192.168.1.189%2Fcom.alibaba.dubbo.demo.DemoService%3Fapplication%3Ddemo-consumer%26category%3Dconsumers%26check%3Dfalse%26dubbo%3D2.0.2%26group%3Ddev%26interface%3Dcom.alibaba.dubbo.demo.DemoService%26methods%3DsayHello%26pid%3D70229%26qos.port%3D33333%26revision%3D1.0.0%26side%3Dconsumer%26timestamp%3D1562143674560%26version%3D1.0.0
+        return toCategoryPath(url) + Constants.PATH_SEPARATOR + URL.encode(url.toFullString()); // consumer://192.168.1.189/com.alibaba.dubbo.demo.DemoService?application=demo-consumer&category=consumers&check=false&dubbo=2.0.2&group=dev&interface=com.alibaba.dubbo.demo.DemoService&methods=sayHello&pid=70229&qos.port=33333&revision=1.0.0&side=consumer&timestamp=1562143674560&version=1.0.0
     }
 
     private List<URL> toUrlsWithoutEmpty(URL consumer, List<String> providers) {

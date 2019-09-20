@@ -80,6 +80,12 @@ public class RpcInvocation implements Invocation, Serializable {
                 invocation.getArguments(), invocation.getAttachments(), invocation.getInvoker());
     }
 
+
+    /**
+     * {@link MockClusterInvoker#invoke} 参数
+     * @param method
+     * @param arguments
+     */
     public RpcInvocation(Method method, Object[] arguments) {
         this(method.getName(), method.getParameterTypes(), arguments, null, null);
     }

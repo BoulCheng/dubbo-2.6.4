@@ -411,6 +411,7 @@ public abstract class AbstractRegistry implements Registry {
             List<URL> categoryList = entry.getValue();
             categoryNotified.put(category, categoryList);
             saveProperties(url);
+            // TODO: 2019/7/10
             listener.notify(categoryList);
         }
     }

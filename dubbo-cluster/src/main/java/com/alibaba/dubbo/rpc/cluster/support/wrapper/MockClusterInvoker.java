@@ -41,8 +41,8 @@ public class MockClusterInvoker<T> implements Invoker<T> {
     private final Invoker<T> invoker;
 
     public MockClusterInvoker(Directory<T> directory, Invoker<T> invoker) {
-        this.directory = directory;
-        this.invoker = invoker;
+        this.directory = directory; // RegistryDirectory
+        this.invoker = invoker; //FailoverClusterInvoker
     }
 
     @Override
