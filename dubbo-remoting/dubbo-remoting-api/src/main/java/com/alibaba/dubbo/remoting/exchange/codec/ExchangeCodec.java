@@ -208,8 +208,15 @@ public class ExchangeCodec extends TelnetCodec {
         return req.getData();
     }
 
+    /**
+     * dubbo协议编码
+     * @param channel
+     * @param buffer
+     * @param req
+     * @throws IOException
+     */
     protected void encodeRequest(Channel channel, ChannelBuffer buffer, Request req) throws IOException {
-        Serialization serialization = getSerialization(channel);
+        Serialization serialization = getSerialization(channel); // 序列化方式
         // header.
         byte[] header = new byte[HEADER_LENGTH];
         // set magic number.
@@ -232,6 +239,7 @@ public class ExchangeCodec extends TelnetCodec {
         if (req.isEvent()) {
             encodeEventData(channel, out, req.getData());
         } else {
+            // 序列化
             encodeRequestData(channel, out, req.getData(), req.getVersion());
         }
         out.flushBuffer();

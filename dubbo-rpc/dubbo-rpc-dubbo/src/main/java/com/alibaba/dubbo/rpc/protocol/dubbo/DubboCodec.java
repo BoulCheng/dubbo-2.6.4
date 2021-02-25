@@ -44,6 +44,7 @@ import java.io.InputStream;
 import static com.alibaba.dubbo.rpc.protocol.dubbo.CallbackServiceCodec.encodeInvocationArgument;
 
 /**
+ * Dubbo协议的编解码实现类
  * Dubbo codec.
  */
 public class DubboCodec extends ExchangeCodec implements Codec2 {
@@ -173,6 +174,14 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
         encodeResponseData(channel, out, data, DUBBO_VERSION);
     }
 
+    /**
+     * 序列化 数据 请求方法、参数等
+     * @param channel
+     * @param out
+     * @param data
+     * @param version
+     * @throws IOException
+     */
     @Override
     protected void encodeRequestData(Channel channel, ObjectOutput out, Object data, String version) throws IOException {
         RpcInvocation inv = (RpcInvocation) data;
