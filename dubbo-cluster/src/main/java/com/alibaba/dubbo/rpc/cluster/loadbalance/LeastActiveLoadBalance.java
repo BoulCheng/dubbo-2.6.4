@@ -47,6 +47,10 @@ public class LeastActiveLoadBalance extends AbstractLoadBalance {
         for (int i = 0; i < length; i++) {
             Invoker<T> invoker = invokers.get(i);
             int active = RpcStatus.getStatus(invoker.getUrl(), invocation.getMethodName()).getActive(); // Active number
+
+            //// afterWarmup 等价于上面的 weight 变量，这样命名是为了强调该变量经过了 warmup 降权处理
+            //int afterWarmup = getWeight(invoker, invocation);
+
             int weight = invoker.getUrl().getMethodParameter(invocation.getMethodName(), Constants.WEIGHT_KEY, Constants.DEFAULT_WEIGHT); // Weight
             if (leastActive == -1 || active < leastActive) { // Restart, when find a invoker having smaller least active value.
                 leastActive = active; // Record the current least active value

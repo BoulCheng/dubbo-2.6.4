@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 高版本dubbo升级为平滑加权轮询负载均衡
  * Round robin load balance.
  *
  */
@@ -60,9 +61,10 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
             sequence = sequences.get(key);
         }
         int currentSequence = sequence.getAndIncrement();
+        //同一方法的调用会有序号，序号对总权重取余，然后轮询(invoker)减取余操作结果直到为0定位invoker
         if (maxWeight > 0 && minWeight < maxWeight) {
             int mod = currentSequence % weightSum;
-            for (int i = 0; i < maxWeight; i++) {
+            for (int i = 0; i < maxWeight; i++) {// 每一个invoker的权重不会大于maxWeight  所以 maxWeight*invoker总数>weightSum，因此mod一定会减到0
                 for (Map.Entry<Invoker<T>, IntegerWrapper> each : invokerToWeightMap.entrySet()) {
                     final Invoker<T> k = each.getKey();
                     final IntegerWrapper v = each.getValue();
