@@ -65,6 +65,7 @@ public class HeaderExchangeClient implements ExchangeClient {
         if (heartbeatTimeout < heartbeat * 2) {
             throw new IllegalStateException("heartbeatTimeout < heartbeatInterval * 2");
         }
+        // consumer 端 心跳机制
         if (needHeartbeat) {
             startHeartbeatTimer();
         }

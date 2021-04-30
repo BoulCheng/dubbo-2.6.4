@@ -26,6 +26,15 @@ import com.alibaba.dubbo.remoting.exchange.Request;
 
 import java.util.Collection;
 
+/**
+ * consumer producer 心跳机制
+ * 使用定时任务的方式
+ * 额外创建线程处理HeartBeatTask
+ * netty处理心跳机制IdleStateHandler在IO线程处理
+ * 不使用IdleStateHandler 可以不在IO线程处理心跳 进而可以提高IO线程处理IO事件的吞吐量
+ *
+ *
+ */
 final class HeartBeatTask implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(HeartBeatTask.class);
@@ -57,6 +66,7 @@ final class HeartBeatTask implements Runnable {
                             HeaderExchangeHandler.KEY_WRITE_TIMESTAMP);
                     if ((lastRead != null && now - lastRead > heartbeat)
                             || (lastWrite != null && now - lastWrite > heartbeat)) {
+                        // 发送心跳数据
                         Request req = new Request();
                         req.setVersion(Version.getProtocolVersion());
                         req.setTwoWay(true);
@@ -68,15 +78,18 @@ final class HeartBeatTask implements Runnable {
                         }
                     }
                     if (lastRead != null && now - lastRead > heartbeatTimeout) {
+                        // 超时
                         logger.warn("Close channel " + channel
                                 + ", because heartbeat read idle time out: " + heartbeatTimeout + "ms");
                         if (channel instanceof Client) {
                             try {
+                                // client端 关闭后重新建立连接
                                 ((Client) channel).reconnect();
                             } catch (Exception e) {
                                 //do nothing
                             }
                         } else {
+                            // server 端关闭
                             channel.close();
                         }
                     }
