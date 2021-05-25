@@ -144,6 +144,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         }
         Invoker<T> invoker = loadbalance.select(invokers, getUrl(), invocation);
 
+        // 如果选出的已经被调用过 那么重新选 且 Reselect, use invokers not in `selected` first, if all invokers are in `selected`, just pick an available one using loadbalance policy.
         //If the `invoker` is in the  `selected` or invoker is unavailable && availablecheck is true, reselect.
         if ((selected != null && selected.contains(invoker))
                 || (!invoker.isAvailable() && getUrl() != null && availablecheck)) {
@@ -169,6 +170,8 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
     }
 
     /**
+     *
+     *
      * Reselect, use invokers not in `selected` first, if all invokers are in `selected`, just pick an available one using loadbalance policy.
      *
      * @param loadbalance

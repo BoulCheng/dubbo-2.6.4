@@ -62,7 +62,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
         RpcException le = null; // last exception.
         List<Invoker<T>> invoked = new ArrayList<Invoker<T>>(copyinvokers.size()); // invoked invokers.
         Set<String> providers = new HashSet<String>(len);
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {// 重试次数
             //Reselect before retry to avoid a change of candidate `invokers`.
             //NOTE: if `invokers` changed, then `invoked` also lose accuracy.
             if (i > 0) {
@@ -71,6 +71,8 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 // check again
                 checkInvokers(copyinvokers, invocation);
             }
+            // 重试时 选择invoker // 如果选出的已经被调用过 那么重新选 且 Reselect, use invokers not in `selected` first, if all invokers are in `selected`, just pick an available one using loadbalance policy.
+            // selected 为已经被选择出来过调用过(调用失败的)的集合
             Invoker<T> invoker = select(loadbalance, invocation, copyinvokers, invoked);
             invoked.add(invoker);
             RpcContext.getContext().setInvokers((List) invoked);
@@ -87,6 +89,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                             + " using the dubbo version " + Version.getVersion() + ". Last error is: "
                             + le.getMessage(), le);
                 }
+                // 如果负载均衡选择出提供者Invoker之后 提供者挂了 那么会检测到连接的Channel断开了 调用会失败抛出RpcException 继而进行重试逻辑
                 return result;
             } catch (RpcException e) {
                 if (e.isBiz()) { // biz exception.

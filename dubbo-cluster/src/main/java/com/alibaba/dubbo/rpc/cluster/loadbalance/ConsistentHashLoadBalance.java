@@ -119,6 +119,7 @@ public class ConsistentHashLoadBalance extends AbstractLoadBalance {
         }
 
         private Invoker<T> selectForKey(long hash) {
+            // TODO: 2021/4/26
             // 到 TreeMap 中查找第一个节点值大于或等于当前 hash 的 Invoker
             Map.Entry<Long, Invoker<T>> entry = virtualInvokers.tailMap(hash, true).firstEntry();
             if (entry == null) {

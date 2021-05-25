@@ -32,7 +32,6 @@ public class RandomLoadBalance extends AbstractLoadBalance {
     public static final String NAME = "random";
 
     private final Random random = new Random();
-
     @Override
     protected <T> Invoker<T> doSelect(List<Invoker<T>> invokers, URL url, Invocation invocation) {
         int length = invokers.size(); // Number of invokers
