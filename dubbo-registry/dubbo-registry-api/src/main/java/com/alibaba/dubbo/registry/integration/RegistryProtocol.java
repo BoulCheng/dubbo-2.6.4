@@ -59,6 +59,7 @@ import static com.alibaba.dubbo.common.Constants.VALIDATION_KEY;
 
 /**
  * RegistryProtocol
+
  *
  */
 public class RegistryProtocol implements Protocol {
@@ -360,6 +361,7 @@ public class RegistryProtocol implements Protocol {
         // all attributes of REFER_KEY
         Map<String, String> parameters = new HashMap<String, String>(directory.getUrl().getParameters());
         URL subscribeUrl = new URL(Constants.CONSUMER_PROTOCOL, parameters.remove(Constants.REGISTER_IP_KEY), 0, type.getName(), parameters);
+        // 注册服务消费者，在 consumers 目录下新节点
         if (!Constants.ANY_VALUE.equals(url.getServiceInterface())
                 && url.getParameter(Constants.REGISTER_KEY, true)) { // FailbackRegistry#register
             registry.register(subscribeUrl.addParameters(Constants.CATEGORY_KEY, Constants.CONSUMERS_CATEGORY,
@@ -407,14 +409,17 @@ public class RegistryProtocol implements Protocol {
          * getObject:66, ReferenceBean (com.alibaba.dubbo.config.spring)
          *
          */
+        // 订阅 providers、configurators、routers 等节点数据
         directory.subscribe(subscribeUrl.addParameter(Constants.CATEGORY_KEY,
                 Constants.PROVIDERS_CATEGORY
                         + "," + Constants.CONFIGURATORS_CATEGORY
                         + "," + Constants.ROUTERS_CATEGORY));
 
         /**
+         * Directory 为 RegistryDirectory
          * {@link MockClusterWrapper#join(Directory)}
          * {@link FailoverCluster#join(Directory)}
+         *
          */
         Invoker invoker = cluster.join(directory);
         ProviderConsumerRegTable.registerConsumer(invoker, url, subscribeUrl, directory);

@@ -54,6 +54,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ *
+ * 动态服务目录，可感知注册中心配置的变化，它所持有的 Invoker 列表会随着注册中心内容的变化而变化
  * RegistryDirectory
  *
  */
@@ -386,6 +388,10 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
                         enabled = url.getParameter(Constants.ENABLED_KEY, true);
                     }
                     if (enabled) {
+
+                        /**
+                         * 最终会调到 {@link DubboProtocol}
+                         */
                         invoker = new InvokerDelegate<T>(protocol.refer(serviceType, url), url, providerUrl);
                     }
                 } catch (Throwable t) {
