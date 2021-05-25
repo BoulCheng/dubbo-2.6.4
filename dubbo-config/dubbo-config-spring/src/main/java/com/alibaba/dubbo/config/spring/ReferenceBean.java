@@ -73,6 +73,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
     }
 
     /**
+     * 服务引用 2 懒汉是式 (init决定)
      * 获取代理对象
      * 在 ReferenceBean 对应的服务被注入到其他类中时引用服务 - 2 懒汉式
      * 当我们的服务被注入到其他类中时，Spring 会第一时间调用 getObject 方法，并由该方法执行服务引用逻辑
@@ -103,7 +104,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
     }
 
     /**
-     * 引用服务 - 1 饿汉式
+     * 服务引用 - 1 饿汉式
      * @throws Exception
      */
     @Override

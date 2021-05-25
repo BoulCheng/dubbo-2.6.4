@@ -43,6 +43,7 @@ public class DubboApplicationListener implements ApplicationListener<Application
         if (applicationEvent instanceof ContextRefreshedEvent) {
             dubboBootstrap.start();
         } else if (applicationEvent instanceof ContextClosedEvent) {
+            // 优雅下线
             dubboBootstrap.stop();
         }
     }

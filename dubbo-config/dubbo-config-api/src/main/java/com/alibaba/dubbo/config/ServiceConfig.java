@@ -553,6 +553,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
                         /**
                          * wrapperInvoker.getUrl().getProtocol()  == registry
                          * {@link RegistryProtocol#export(Invoker)}
+                         * {@link DubboProtocol#export(Invoker)}
                          */
                         Exporter<?> exporter = protocol.export(wrapperInvoker);
                         exporters.add(exporter);

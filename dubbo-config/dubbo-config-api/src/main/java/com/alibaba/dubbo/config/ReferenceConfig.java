@@ -86,6 +86,7 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     private String protocol;
     // interface proxy reference
     //接口代理引用
+    //代理对象
     private transient volatile T ref;
     private transient volatile Invoker<?> invoker;
     private transient volatile boolean initialized;
@@ -414,9 +415,15 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
                 }
             }
 
-            if (urls.size() == 1) {// RegistryProtocol
+            if (urls.size() == 1) {// RegistryProtocol // 单注册中心 比如一个zookeeper注册中心
+                /**
+                 *         此处返回的Invoker为 MockClusterInvoker
+                 *          {@link MockClusterWrapper#join(Directory)}
+                 *          {@link FailoverCluster#join(Directory)}
+                 * Directory 为 RegistryDirectory
+                 */
                 invoker = refprotocol.refer(interfaceClass, urls.get(0));
-            } else {
+            } else {// 多注册中心
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
                 URL registryURL = null;
                 for (URL url : urls) {
