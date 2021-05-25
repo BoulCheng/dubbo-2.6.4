@@ -24,6 +24,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 
 /**
+ * 处理请求 ExchangeHandler 6
+ */
+
+/**
  * NettyClientHandler
  */
 @io.netty.channel.ChannelHandler.Sharable
@@ -66,6 +70,12 @@ public class NettyClientHandler extends ChannelDuplexHandler {
         }
     }
 
+    /**
+     * 接受消息入口
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);

@@ -73,6 +73,9 @@ public class DubboProtocol extends AbstractProtocol {
     //consumer side export a stub service for dispatching event
     //servicekey-stubmethods
     private final ConcurrentMap<String, String> stubServiceMethodsMap = new ConcurrentHashMap<String, String>();
+    /**
+     * 处理请求 ExchangeHandler 1
+     */
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
 
         @Override
@@ -103,7 +106,11 @@ public class DubboProtocol extends AbstractProtocol {
                         return null;
                     }
                 }
+                //
                 RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
+                /**
+                 * {@link AbstractProxyInvoker}
+                 */
                 return invoker.invoke(inv);
             }
             throw new RemotingException(channel, "Unsupported request: "

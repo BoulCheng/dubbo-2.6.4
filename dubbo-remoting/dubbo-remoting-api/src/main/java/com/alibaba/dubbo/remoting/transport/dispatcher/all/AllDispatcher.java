@@ -21,6 +21,10 @@ import com.alibaba.dubbo.remoting.ChannelHandler;
 import com.alibaba.dubbo.remoting.Dispatcher;
 
 /**
+ * 处理请求 ExchangeHandler 4
+ */
+
+/**
  * default thread pool configure
  */
 public class AllDispatcher implements Dispatcher {

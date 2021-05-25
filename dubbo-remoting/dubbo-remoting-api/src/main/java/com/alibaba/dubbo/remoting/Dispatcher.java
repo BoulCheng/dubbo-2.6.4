@@ -23,6 +23,10 @@ import com.alibaba.dubbo.common.extension.SPI;
 import com.alibaba.dubbo.remoting.transport.dispatcher.all.AllDispatcher;
 
 /**
+ * 处理请求 ExchangeHandler 5
+ */
+
+/**
  * ChannelHandlerWrapper (SPI, Singleton, ThreadSafe)
  */
 @SPI(AllDispatcher.NAME)

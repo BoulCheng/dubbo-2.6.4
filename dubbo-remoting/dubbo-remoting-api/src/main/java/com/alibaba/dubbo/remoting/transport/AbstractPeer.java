@@ -139,6 +139,12 @@ public abstract class AbstractPeer implements Endpoint, ChannelHandler {
         handler.sent(ch, msg);
     }
 
+    /**
+     *
+     * @param ch
+     * @param msg
+     * @throws RemotingException
+     */
     @Override
     public void received(Channel ch, Object msg) throws RemotingException {
         if (closed) {
