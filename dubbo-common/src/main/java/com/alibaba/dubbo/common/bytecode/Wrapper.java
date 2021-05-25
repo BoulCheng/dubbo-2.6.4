@@ -110,6 +110,11 @@ public abstract class Wrapper {
         return ret;
     }
 
+    /**
+     * Javassist 重新生成Class对象
+     * @param c
+     * @return
+     */
     private static Wrapper makeWrapper(Class<?> c) {
         if (c.isPrimitive())
             throw new IllegalArgumentException("Can not create wrapper for primitive type: " + c);
@@ -412,6 +417,8 @@ public abstract class Wrapper {
     }
 
     /**
+     *
+     * 生成的代理对象会实现该方法 通过该方法调用真正的服务实现
      * invoke method.
      *
      * @param instance instance.
