@@ -533,6 +533,11 @@ public class ExtensionLoader<T> {
         }
     }
 
+    /**
+     * dubbo spi IOC 支持
+     * @param instance
+     * @return
+     */
     private T injectExtension(T instance) {
         try {
             if (objectFactory != null) {
