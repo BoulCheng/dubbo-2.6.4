@@ -61,6 +61,14 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
     public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
     private static final Logger log = LoggerFactory.getLogger(DubboCodec.class);
 
+    /**
+     *
+     * @param channel
+     * @param is
+     * @param header
+     * @return
+     * @throws IOException
+     */
     @Override
     protected Object decodeBody(Channel channel, InputStream is, byte[] header) throws IOException {
         byte flag = header[2], proto = (byte) (flag & SERIALIZATION_MASK);
@@ -111,6 +119,7 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
             }
             return res;
         } else {
+            // 对接受到的请求解码 生成Request对象
             // decode request.
             Request req = new Request(id);
             req.setVersion(Version.getProtocolVersion());
@@ -121,17 +130,22 @@ public class DubboCodec extends ExchangeCodec implements Codec2 {
             try {
                 Object data;
                 if (req.isHeartbeat()) {
+                    // 对心跳包进行解码，该方法已被标注为废弃
                     data = decodeHeartbeatData(channel, deserialize(s, channel.getUrl(), is));
                 } else if (req.isEvent()) {
                     data = decodeEventData(channel, deserialize(s, channel.getUrl(), is));
                 } else {
                     DecodeableRpcInvocation inv;
+                    // 根据 url 参数判断是否在 IO 线程上对消息体进行解码
                     if (channel.getUrl().getParameter(
                             Constants.DECODE_IN_IO_THREAD_KEY,
                             Constants.DEFAULT_DECODE_IN_IO_THREAD)) {
+                        // 在当前线程，也就是 IO 线程上进行后续的解码工作。此工作完成后，可将
+                        // 调用方法名、attachment、以及调用参数解析出来
                         inv = new DecodeableRpcInvocation(channel, req, is, proto);
                         inv.decode();
                     } else {
+                        // 仅创建 DecodeableRpcInvocation 对象，但不在当前线程上执行解码逻辑
                         inv = new DecodeableRpcInvocation(channel, req,
                                 new UnsafeByteArrayInputStream(readMessageData(is)), proto);
                     }

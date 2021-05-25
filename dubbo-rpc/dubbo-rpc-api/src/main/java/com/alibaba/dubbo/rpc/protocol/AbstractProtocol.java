@@ -44,6 +44,9 @@ public abstract class AbstractProtocol implements Protocol {
     protected final Set<Invoker<?>> invokers = new ConcurrentHashSet<Invoker<?>>();
 
     /**
+     *
+     * 如何唯一确定一个服务
+     *
      * url.getPath()
      * {@link ServiceConfig#path}
      * @param url

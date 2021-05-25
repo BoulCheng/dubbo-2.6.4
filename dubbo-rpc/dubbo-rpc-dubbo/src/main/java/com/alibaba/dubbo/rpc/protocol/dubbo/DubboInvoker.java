@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ *
+ * 一个DubboInvoker 对应一个服务提供方(不同注册中心不同提供方对应不同DubboInvoker) 具有远程调用能力,  {@link DubboInvoker#clients} 代表与该服务提供方连接的netty客户端
  * DubboInvoker
  */
 public class DubboInvoker<T> extends AbstractInvoker<T> {
@@ -81,6 +83,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         if (clients.length == 1) {
             currentClient = clients[0];
         } else {
+            // // connections 表示该客户端服务对每个提供者建立的长连接数 此处轮询选择连接
             currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
@@ -88,20 +91,26 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             // true 表示单边调用, 被调用方无需返回信息
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
             int timeout = getUrl().getMethodParameter(methodName, Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
-            if (isOneway) {
+            if (isOneway) {// 异步无返回值
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
                 RpcContext.getContext().setFuture(null);
                 return new RpcResult();
-            } else if (isAsync) {
+            } else if (isAsync) {// 异步有返回值
+                // 发送请求，并得到一个 ResponseFuture 实例
                 ResponseFuture future = currentClient.request(inv, timeout);
+                // 设置 future 到上下文中
                 RpcContext.getContext().setFuture(new FutureAdapter<Object>(future));
+                // 暂时返回一个空结果
                 return new RpcResult();
-            } else {
+            } else {// 同步调用
                 RpcContext.getContext().setFuture(null);
+                // 发送请求，得到一个 ResponseFuture 实例，并调用该实例的 get 方法进行等待
+                // ReferenceCountExchangeClient -> HeaderExchangeClient -> HeaderExchangeChannel
                 return (Result) currentClient.request(inv, timeout).get();
             }
         } catch (TimeoutException e) {
+            //超时异常
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
         } catch (RemotingException e) {
             throw new RpcException(RpcException.NETWORK_EXCEPTION, "Failed to invoke remote method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);

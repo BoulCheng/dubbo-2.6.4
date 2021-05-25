@@ -26,7 +26,11 @@ import com.alibaba.dubbo.rpc.Result;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.dubbo.rpc.RpcStatus;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
 /**
+ * 责任链模式(过滤器)
  * LimitInvokerFilter
  */
 @Activate(group = Constants.CONSUMER, value = Constants.ACTIVES_KEY)
@@ -44,6 +48,10 @@ public class ActiveLimitFilter implements Filter {
             long remain = timeout;
             int active = count.getActive();
             if (active >= max) {
+                /**
+                 * 可以使用信号量替换
+                 * @see Semaphore#tryAcquire(long, TimeUnit)
+                 */
                 synchronized (count) {
                     while ((active = count.getActive()) >= max) {
                         try {

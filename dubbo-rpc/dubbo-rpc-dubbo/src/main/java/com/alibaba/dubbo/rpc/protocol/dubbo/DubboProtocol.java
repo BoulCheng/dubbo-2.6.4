@@ -55,7 +55,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * @see DubboProtocol#requestHandler
  * dubbo protocol support.
+
  */
 public class DubboProtocol extends AbstractProtocol {
 
@@ -282,10 +284,12 @@ public class DubboProtocol extends AbstractProtocol {
 
     private void openServer(URL url) {
         // find server.
+        // 获取 host:port，并将其作为服务器实例的 key，用于标识当前的服务器实例
         String key = url.getAddress();
         //client can export a service which's only for server to invoke
         boolean isServer = url.getParameter(Constants.IS_SERVER_KEY, true);
         if (isServer) {
+            // 在同一台机器上（单网卡），同一个端口上仅允许启动一个服务器实例。若某个端口上已有服务器实例，此时则调用 reset 方法重置服务器的一些配置
             ExchangeServer server = serverMap.get(key);
             if (server == null) {
                 serverMap.put(key, createServer(url));
@@ -373,6 +377,7 @@ public class DubboProtocol extends AbstractProtocol {
      */
     @Override
     public <T> Invoker<T> refer(Class<T> serviceType, URL url) throws RpcException {
+        // TODO: 2021/2/24
         optimizeSerialization(url);
         // create rpc invoker.
         // 建立提供者的netty连接 并创建 DubboInvoker
@@ -394,8 +399,11 @@ public class DubboProtocol extends AbstractProtocol {
         ExchangeClient[] clients = new ExchangeClient[connections];
         for (int i = 0; i < clients.length; i++) {
             if (service_share_connect) {
+                //connections 数量决定是获取共享netty client还是创建新的客户端实例，默认情况下，使用共享客户端实例
+                //即所有服务公用一个tcp连接
                 clients[i] = getSharedClient(url);
             } else {
+                // connections 表示该客户端服务对每个提供者建立的长连接数 此处的url只表示该服务的一个提供方
                 clients[i] = initClient(url);
             }
         }

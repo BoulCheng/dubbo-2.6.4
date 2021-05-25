@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class ReferenceCountExchangeClient implements ExchangeClient {
 
     private final URL url;
+    //使用共享netty client实例的被使用计数 即多个服务公用一个netty-client(一个tcp连接)
     private final AtomicInteger refenceCount = new AtomicInteger(0);
 
     //    private final ExchangeHandler handler;
