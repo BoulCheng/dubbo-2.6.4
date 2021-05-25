@@ -58,6 +58,11 @@ public class NettyServerHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.write("");
+        ctx.channel().alloc()
+        ctx.pipeline().write("");
+        ctx.alloc()
+
         ctx.fireChannelActive();
 
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
@@ -65,6 +70,7 @@ public class NettyServerHandler extends ChannelDuplexHandler {
             if (channel != null) {
                 channels.put(NetUtils.toAddressString((InetSocketAddress) ctx.channel().remoteAddress()), channel);
             }
+            // 服务提供方最大可接受连接数控制
             handler.connected(channel);
         } finally {
             NettyChannel.removeChannelIfDisconnected(ctx.channel());
@@ -89,6 +95,12 @@ public class NettyServerHandler extends ChannelDuplexHandler {
 
     }
 
+    /**
+     * 从这里开始就用 dubbo自定构建的ChannelHandler 传递  责任链(拦截器 过滤器)  比如 AllChannelHandler、 HeaderExchangeHandler
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);

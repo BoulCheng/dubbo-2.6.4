@@ -50,6 +50,9 @@ public class ChannelEventRunnable implements Runnable {
         this.exception = exception;
     }
 
+    /**
+     * 派发给线程池处理的逻辑 ChannelEventRunnable 仅是一个中转站，它的 run 方法中并不包含具体的调用逻辑，仅用于将参数传给其他 ChannelHandler 对象进行处理
+     */
     @Override
     public void run() {
         if (state == ChannelState.RECEIVED) {

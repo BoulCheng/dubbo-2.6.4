@@ -76,6 +76,7 @@ public class DefaultFuture implements ResponseFuture {
         this.channel = channel;
         this.request = request;
         this.id = request.getId();
+        // 默认超时时间1s
         this.timeout = timeout > 0 ? timeout : channel.getUrl().getPositiveParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
         // put into waiting map.
         FUTURES.put(id, this);
@@ -122,6 +123,7 @@ public class DefaultFuture implements ResponseFuture {
 
     public static void received(Channel channel, Response response) {
         try {
+            // 根据调用编号从 FUTURES 集合中查找指定的 DefaultFuture 对象
             DefaultFuture future = FUTURES.remove(response.getId());
             if (future != null) {
                 future.doReceived(response);
@@ -142,6 +144,12 @@ public class DefaultFuture implements ResponseFuture {
         return get(timeout);
     }
 
+    /**
+     * 发送请求，得到一个 ResponseFuture 实例，并调用该实例的 get 方法进行等待
+     * @param timeout
+     * @return
+     * @throws RemotingException
+     */
     @Override
     public Object get(int timeout) throws RemotingException {
         if (timeout <= 0) {
@@ -163,6 +171,7 @@ public class DefaultFuture implements ResponseFuture {
                 lock.unlock();
             }
             if (!isDone()) {
+                //超时异常
                 throw new TimeoutException(sent > 0, channel, getTimeoutMessage(false));
             }
         }
@@ -283,8 +292,13 @@ public class DefaultFuture implements ResponseFuture {
     private void doReceived(Response res) {
         lock.lock();
         try {
+            // 保存响应对象
             response = res;
             if (done != null) {
+                // 唤醒用户线程
+                /**
+                 * {@link #get()} 中 done.await
+                 */
                 done.signal();
             }
         } finally {

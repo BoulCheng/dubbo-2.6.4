@@ -74,8 +74,18 @@ final class NettyCodecAdapter {
         }
     }
 
+    /**
+     * netty入站数据解码 如服务提供方收到服务消费方发送的请求
+     */
     private class InternalDecoder extends ByteToMessageDecoder {
 
+        /**
+         *
+         * @param ctx
+         * @param input
+         * @param out
+         * @throws Exception
+         */
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf input, List<Object> out) throws Exception {
 

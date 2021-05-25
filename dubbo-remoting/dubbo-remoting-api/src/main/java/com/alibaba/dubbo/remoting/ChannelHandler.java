@@ -20,6 +20,7 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 
 /**
+ * dubbo 构建了区别与netty自己的 ChannelHandler
  * ChannelHandler. (API, Prototype, ThreadSafe)
  *
  * @see com.alibaba.dubbo.remoting.Transporter#bind(com.alibaba.dubbo.common.URL, ChannelHandler)

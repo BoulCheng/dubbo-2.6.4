@@ -91,6 +91,12 @@ final class NettyChannel extends AbstractChannel {
         return !isClosed() && channel.isActive();
     }
 
+    /**
+     *
+     * @param message  Request Request#mData是RpcInvocation
+     * @param sent
+     * @throws RemotingException
+     */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
         super.send(message, sent);

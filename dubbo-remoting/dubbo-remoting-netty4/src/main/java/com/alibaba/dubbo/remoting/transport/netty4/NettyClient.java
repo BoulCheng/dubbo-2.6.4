@@ -72,6 +72,7 @@ public class NettyClient extends AbstractClient {
             bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getTimeout());
         }
 
+        // 编解码handler设置
         bootstrap.handler(new ChannelInitializer() {
 
             @Override

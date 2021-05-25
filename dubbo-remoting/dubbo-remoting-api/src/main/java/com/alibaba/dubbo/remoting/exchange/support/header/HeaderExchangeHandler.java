@@ -94,6 +94,11 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         Object msg = req.getData();
         try {
             // handle data.
+            // 处理请求
+            /**
+             * 如dubbo协议
+             * @see DubboProtocol#requestHandler
+             */
             Object result = handler.reply(channel, msg);
             res.setStatus(Response.OK);
             res.setResult(result);
@@ -159,25 +164,37 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         }
     }
 
+    /**
+     *
+     * @param channel channel.
+     * @param message message.
+     * @throws RemotingException
+     */
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         channel.setAttribute(KEY_READ_TIMESTAMP, System.currentTimeMillis());
         ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
         try {
+            // 处理请求对象
             if (message instanceof Request) {
+                // 服务提供者收到请求
                 // handle request.
                 Request request = (Request) message;
                 if (request.isEvent()) {
                     handlerEvent(channel, request);
-                } else {
+                } else {// 处理普通的请求
+                    // 双向通信
                     if (request.isTwoWay()) {
+                        // 向后调用服务，并得到调用结果
                         Response response = handleRequest(exchangeChannel, request);
                         channel.send(response);
-                    } else {
+                    } else { // 如果是单向通信，仅向后调用指定服务即可，无需返回调用结果
                         handler.received(exchangeChannel, request.getData());
                     }
                 }
-            } else if (message instanceof Response) {
+            } else if (message instanceof Response) {// 服务调用方收到服务提供方的响应
+                // 将响应对象从线程池线程传递到用户线程上
+                // 如用户线程在发送完请求后的动作，即调用 DefaultFuture 的 get 方法等待响应对象的到来。当响应对象到来后，用户线程会被唤醒，并通过调用编号获取属于自己的响应对象
                 handleResponse(channel, (Response) message);
             } else if (message instanceof String) {
                 if (isClientSide(channel)) {

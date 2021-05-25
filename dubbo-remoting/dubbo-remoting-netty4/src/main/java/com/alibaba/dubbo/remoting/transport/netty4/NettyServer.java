@@ -65,6 +65,10 @@ public class NettyServer extends AbstractServer implements Server {
         super(url, ChannelHandlers.wrap(handler, ExecutorUtil.setThreadName(url, SERVER_THREAD_POOL_NAME)));
     }
 
+    /**
+     * @see java.util.concurrent.ConcurrentHashMap#put(Object, Object) 
+     * @throws Throwable
+     */
     @Override
     protected void doOpen() throws Throwable {
         bootstrap = new ServerBootstrap();
@@ -86,7 +90,7 @@ public class NettyServer extends AbstractServer implements Server {
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec(), getUrl(), NettyServer.this);
                         ch.pipeline()//.addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
-                                .addLast("decoder", adapter.getDecoder())
+                                .addLast("decoder", adapter.getDecoder()) // Netty 检测到有数据入站后，首先会通过解码器对数据进行解码，并将解码后的数据传递给下一个入站处理器的指定方法
                                 .addLast("encoder", adapter.getEncoder())
                                 .addLast("handler", nettyServerHandler);
                     }

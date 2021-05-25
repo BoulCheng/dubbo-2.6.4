@@ -44,7 +44,10 @@ import java.io.InputStream;
 /**
  * ExchangeCodec.
  *
+ * Dubbo协议的编解码
  *
+ *
+ * Dubbo 数据包分为消息头和消息体 消息头长度固定16
  *
  */
 public class ExchangeCodec extends TelnetCodec {
@@ -85,8 +88,18 @@ public class ExchangeCodec extends TelnetCodec {
         return decode(channel, buffer, readable, header);
     }
 
+    /**
+     *
+     * @param channel
+     * @param buffer
+     * @param readable
+     * @param header dubbo协议head
+     * @return
+     * @throws IOException
+     */
     @Override
     protected Object decode(Channel channel, ChannelBuffer buffer, int readable, byte[] header) throws IOException {
+        // 检测消息头中的魔数是否与规定的魔数相等，提前拦截掉非常规数据包
         // check magic number.
         if (readable > 0 && header[0] != MAGIC_HIGH
                 || readable > 1 && header[1] != MAGIC_LOW) {
@@ -109,7 +122,9 @@ public class ExchangeCodec extends TelnetCodec {
             return DecodeResult.NEED_MORE_INPUT;
         }
 
+        // 检测消息体长度是否超出限制，超出则抛出异常
         // get data length.
+        // dubbo协议二进制数据包 前16字节是head 这里取消息体长度
         int len = Bytes.bytes2int(header, 12);
         checkPayload(channel, len);
 
@@ -118,6 +133,7 @@ public class ExchangeCodec extends TelnetCodec {
             return DecodeResult.NEED_MORE_INPUT;
         }
 
+        // dubbo协议body 消息体
         // limit input stream.
         ChannelBufferInputStream is = new ChannelBufferInputStream(buffer, len);
 
